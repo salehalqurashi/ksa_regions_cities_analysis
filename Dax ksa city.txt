@@ -1,0 +1,158 @@
+// استعلام 1: عدد الأحياء في كل مدينة
+EVALUATE
+SUMMARIZE (
+    ksa_regions_cities_districts,
+    ksa_regions_cities_districts[city_name_ar],
+    "District Count", COUNTROWS(ksa_regions_cities_districts)
+)
+
+/* هذا الكود يحسب عدد الأحياء في كل مدينة */
+
+// استعلام 2: عدد الأحياء في كل منطقة ومدينة
+EVALUATE
+SUMMARIZE (
+    ksa_regions_cities_districts,
+    ksa_regions_cities_districts[region_name_ar],
+    ksa_regions_cities_districts[city_name_ar],
+    "District Count", COUNTROWS(ksa_regions_cities_districts)
+)
+
+/* هذا الكود يحسب عدد الأحياء في كل منطقة ومدينة */
+
+// استعلام 3: إضافة حقلين إلى الاستعلام السابق: إجمالي الأحياء في كل منطقة ونسبة الأحياء في كل منطقة
+EVALUATE
+ADDCOLUMNS (
+    SUMMARIZE (
+        ksa_regions_cities_districts,
+        ksa_regions_cities_districts[region_name_ar],
+        ksa_regions_cities_districts[city_name_ar],
+        "District Count", COUNTROWS(ksa_regions_cities_districts)
+    ),
+    "Total Districts in Region",
+    CALCULATE (
+        COUNTROWS(ksa_regions_cities_districts),
+        ALLEXCEPT(ksa_regions_cities_districts, ksa_regions_cities_districts[region_name_ar])
+    ),
+    "District Percentage",
+    DIVIDE (
+        COUNTROWS(ksa_regions_cities_districts),
+        CALCULATE (
+            COUNTROWS(ksa_regions_cities_districts),
+            ALLEXCEPT(ksa_regions_cities_districts, ksa_regions_cities_districts[region_name_ar])
+        ),
+        0
+    )
+)
+
+/* هذا الكود يضيف حقلين لحساب إجمالي الأحياء في كل منطقة ونسبة الأحياء في كل منطقة */
+
+// استعلام 4: الحي الأكبر عددًا في كل منطقة ومدينة
+EVALUATE
+TOPN (
+    1,
+    SUMMARIZE (
+        ksa_regions_cities_districts,
+        ksa_regions_cities_districts[region_name_ar],
+        ksa_regions_cities_districts[city_name_ar],
+        "District Count", COUNTROWS(ksa_regions_cities_districts)
+    ),
+    [District Count],
+    DESC
+)
+
+/* هذا الكود يعرض الحي الأكبر عددًا في كل منطقة ومدينة */
+
+// استعلام 5: إضافة حقلين لمعرفة متوسط خط العرض وخط الطول وعدد الأحياء الذي يفوق المتوسط في كل مدينة
+EVALUATE
+ADDCOLUMNS (
+    SUMMARIZE (
+        ksa_regions_cities_districts,
+        ksa_regions_cities_districts[city_name_ar],
+        "Average Latitude", AVERAGE(ksa_regions_cities_districts[latitude]),
+        "Average Longitude", AVERAGE(ksa_regions_cities_districts[longitude]),
+        "District Count", COUNTROWS(ksa_regions_cities_districts)
+    ),
+    "Above Average Districts",
+    CALCULATE (
+        COUNTROWS(ksa_regions_cities_districts),
+        ksa_regions_cities_districts[latitude] > AVERAGE(ksa_regions_cities_districts[latitude])
+    )
+)
+
+/* هذا الكود يضيف حقلين لحساب متوسط خط العرض وخط الطول وعدد الأحياء التي تفوق المتوسط في كل مدينة */
+
+// استعلام 6: عدد الأحياء في مدينة محددة في منطقة معينة
+EVALUATE
+SUMMARIZE (
+    FILTER (
+        ksa_regions_cities_districts,
+        ksa_regions_cities_districts[region_name_ar] = "اسم المنطقة" &&
+        (ksa_regions_cities_districts[city_name_ar] = "اسم المدينة 1" || ksa_regions_cities_districts[city_name_ar] = "اسم المدينة 2")
+    ),
+    ksa_regions_cities_districts[city_name_ar],
+    "District Count", COUNTROWS(ksa_regions_cities_districts)
+)
+
+/* هذا الكود يحسب عدد الأحياء في مدينة محددة في منطقة معينة */
+
+// استعلام 7: إضافة حقلين لمعرفة إجمالي الأحياء في كل منطقة ونسبة الأحياء في كل منطقة
+EVALUATE
+ADDCOLUMNS (
+    SUMMARIZE (
+        ksa_regions_cities_districts,
+        ksa_regions_cities_districts[region_name_ar],
+        ksa_regions_cities_districts[city_name_ar],
+        "District Count", COUNTROWS(ksa_regions_cities_districts)
+    ),
+    "Total Districts in Region",
+    CALCULATE (
+        COUNTROWS(ksa_regions_cities_districts),
+        ALLEXCEPT(ksa_regions_cities_districts, ksa_regions_cities_districts[region_name_ar])
+    ),
+    "District Percentage",
+    DIVIDE (
+        COUNTROWS(ksa_regions_cities_districts),
+        CALCULATE (
+            COUNTROWS(ksa_regions_cities_districts),
+            ALLEXCEPT(ksa_regions_cities_districts, ksa_regions_cities_districts[region_name_ar])
+        ),
+        0
+    )
+)
+
+/* هذا الكود يضيف حقلين لحساب إجمالي الأحياء في كل منطقة ونسبة الأحياء في كل منطقة */
+
+// استعلام 8: الحي الأكبر عددًا في كل منطقة ومدينة (تكرار للاستعلام 4)
+EVALUATE
+TOPN (
+    1,
+    SUMMARIZE (
+        ksa_regions_cities_districts,
+        ksa_regions_cities_districts[region_name_ar],
+        ksa_regions_cities_districts[city_name_ar],
+        "District Count", COUNTROWS(ksa_regions_cities_districts)
+    ),
+    [District Count],
+    DESC
+)
+
+/* هذا الكود يعرض الحي الأكبر عددًا في كل منطقة ومدينة */
+
+// استعلام 9: إضافة حقلين لمعرفة متوسط خط العرض وخط الطول وعدد الأحياء الذي يفوق المتوسط في كل مدينة (تكرار للاستعلام 5)
+EVALUATE
+ADDCOLUMNS (
+    SUMMARIZE (
+        ksa_regions_cities_districts,
+        ksa_regions_cities_districts[city_name_ar],
+        "Average Latitude", AVERAGE(ksa_regions_cities_districts[latitude]),
+        "Average Longitude", AVERAGE(ksa_regions_cities_districts[longitude]),
+        "District Count", COUNTROWS(ksa_regions_cities_districts)
+    ),
+    "Above Average Districts",
+    CALCULATE (
+        COUNTROWS(ksa_regions_cities_districts),
+        ksa_regions_cities_districts[latitude] > AVERAGE(ksa_regions_cities_districts[latitude])
+    )
+)
+
+/* هذا الكود يضيف حقلين لحساب متوسط خط العرض وخط الطول وعدد الأحياء التي تفوق المتوسط في كل مدينة */
